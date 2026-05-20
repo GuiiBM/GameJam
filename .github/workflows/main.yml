@@ -1,0 +1,18 @@
+name: Sincronizacao GameJam
+
+on:
+  schedule:
+    - cron: '*/5 * * * *' 
+  workflow_dispatch: 
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Iniciar Sincronizacao
+        uses: repo-sync/github-sync@v2
+        with:
+          source_repo: "https://github.com/MinerimGames/gamejam"
+          source_branch: "main"
+          destination_branch: "main"
+          github_token: ${{ secrets.GITHUB_TOKEN }}
