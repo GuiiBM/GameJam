@@ -1,161 +1,50 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
-
 <head>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
-  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <title>IsleideVerse</title>
-
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#27103e">
+  <title>Paradoxo de Wilson</title>
   <link rel="stylesheet" href="styles.css">
-  <script src="challenge.js" defer></script>
-  <script src="battle.js" defer></script>
+  <script defer src="data.js"></script>
+  <script defer src="mechanics.js"></script>
+  <script defer src="game.js"></script>
 </head>
-
 <body>
-
-  <div class="arena">
-
-    <!-- STATUS INIMIGO -->
-    <div class="caixa inimigo">
-      <div class="caixa-nome">Isleide Newton</div>
-
-      <div class="caixa-level">
-        NÍVEL 1
-      </div>
-
-      <div class="caixa-vida">
-        <span id="vidaInimigo"></span>
-      </div>
-
-      <div class="texto-hp">
-        HP: <span id="hpInimigo">100</span>/100
-      </div>
+  <main>
+    <header class="page-header"><span>PARADOXO DE WILSON</span><span>EDIÇÃO WEB</span></header>
+    <div id="stage" tabindex="0" aria-label="Jogo Paradoxo de Wilson">
+      <canvas id="game" width="960" height="540" aria-label="Cenário do jogo"></canvas>
+      <div id="loading" class="veil"><section class="panel"><h1>PARADOXO DE WILSON</h1><p id="loading-text" role="status">Preparando as realidades…</p><progress id="load-progress" max="52" value="0"></progress></section></div>
+      <section id="menu" class="screen" hidden aria-label="Menu principal">
+        <div class="title"><p>UMA AVENTURA ENTRE REALIDADES</p><h1>PARADOXO<br>DE WILSON</h1><p>A LINHA DO TEMPO PRECISA DE VOCÊ</p></div>
+        <div class="menu-buttons"><button data-menu="play">JOGAR</button><button data-menu="controls">CONTROLES</button><button data-menu="exit">SAIR</button></div>
+        <p class="menu-footer">W/S OU SETAS · NAVEGAR &nbsp; ENTER · CONFIRMAR</p>
+      </section>
+      <div id="hud" hidden><span id="location"></span><span id="objective"></span><button id="pause-button" aria-label="Pausar jogo">Ⅱ</button></div>
+      <div id="prompt" hidden></div>
+      <section id="dialogue" class="panel dialogue" hidden aria-label="Diálogo">
+        <div class="dialogue-heading"><strong id="speaker"></strong><span id="page-number"></span></div>
+        <p id="dialogue-text" aria-live="polite"></p>
+        <button id="next-dialogue">CONTINUAR <small>E / ESPAÇO</small></button>
+      </section>
+      <div id="choice" class="veil" hidden><section class="panel"><h2>TREINO DE INCURSÃO</h2><p>Quer praticar as quatro ações com Newton antes de atravessar o portal?</p><div class="choices"><button id="train">FAZER TREINAMENTO</button><button id="skip">PULAR TUTORIAL</button></div></section></div>
+      <section id="battle" class="screen" hidden aria-label="Combate matemático">
+        <div class="status panel enemy-status"><strong id="enemy-name"></strong><small id="math-level"></small><meter id="enemy-hp" min="0" max="100" value="100" aria-label="Vida do inimigo"></meter><span id="enemy-health"></span></div>
+        <div id="guide" class="panel" hidden></div>
+        <div class="status panel player-status"><strong>Isleide Wilson</strong><small>NÍVEL 1</small><meter id="player-hp" min="0" max="100" value="100" aria-label="Sua vida"></meter><span id="player-health"></span></div>
+        <p id="battle-log" class="panel" aria-live="polite"></p>
+        <div class="actions"><button data-action="attack">1 ATAQUE</button><button data-action="heal">2 CURA</button><button data-action="defense">3 DEFESA</button><button data-action="dodge">4 ESQUIVA</button></div>
+      </section>
+      <div id="challenge" class="veil" hidden><form id="answer-form" class="panel challenge"><h2>RESOLVA A CONTA!</h2><p id="equation"></p><label for="answer">SUA RESPOSTA</label><input id="answer" type="text" inputmode="numeric" pattern="[0-9]{1,5}" maxlength="5" autocomplete="off" required><button type="submit">CONFIRMAR <small>ENTER</small></button></form></div>
+      <div id="result" class="veil" hidden><section class="panel"><h2 id="result-title"></h2><p id="result-text"></p><button id="result-next"></button></section></div>
+      <div id="modal" class="veil" hidden><section class="panel"><h2 id="modal-title"></h2><div id="modal-text"></div><button id="modal-close">VOLTAR</button><button id="return-menu" hidden>VOLTAR AO MENU</button></section></div>
+      <section id="ending" hidden><h2>A REALIDADE SE ROMPEU.</h2><p>Wilson escapou a tempo.</p><button id="ending-menu" hidden>VOLTAR AO MENU <small>ENTER</small></button></section>
+      <div id="toast" role="status" hidden></div>
+      <div id="fade"></div>
     </div>
-
-    <!-- STATUS PLAYER -->
-    <div class="caixa personagem-status">
-
-      <div class="caixa-nome">Isleide</div>
-
-      <div class="caixa-level">
-        NÍVEL 1
-      </div>
-
-      <div class="caixa-vida">
-        <span id="vidaPlayer"></span>
-      </div>
-
-      <div class="texto-hp">
-        HP: <span id="hpPlayer">100</span>/100
-      </div>
-
-    </div>
-
-    <!-- PLAYER -->
-    <div class="personagem">
-      <img src="assets/JogadorCostas0.png" alt="Jogador">
-    </div>
-
-    <!-- INIMIGO -->
-    <div class="inimigo-sprite">
-      <img src="assets/Newton0.png" alt="Inimigo">
-    </div>
-
-    <!-- MENU 2x2 -->
-    <div class="caixa-acoes">
-
-      <button class="botao-acao">
-        ATAQUE
-      </button>
-
-      <button class="botao-acao">
-        CURA
-      </button>
-
-      <button class="botao-acao">
-        DEFESA
-      </button>
-
-      <button class="botao-acao">
-        ESQUIVA
-      </button>
-
-    </div>
-
-    <!-- POPUP -->
-    <div class="popup-overlay">
-
-      <div class="popup">
-
-        <div class="caixa-texto">
-          RESOLVA A CONTA!
-        </div>
-
-        <div class="desafio-matematico">
-
-          <span id="slotX">?</span>
-
-          <span id="slotOperacao">+</span>
-
-          <span id="slotY">?</span>
-
-        </div>
-
-        <div class="popup-input-area">
-
-          <input
-            type="number"
-            id="respostaUsuario"
-            placeholder="RESPOSTA"
-          >
-
-          <button id="btnVerificar" onclick="verificarResposta()">
-            OK
-          </button>
-
-        </div>
-
-      </div>
-
-    </div>
-
-    <!-- POPUP DE RESULTADO -->
-    <div class="resultado-overlay" id="resultadoPopup">
-      <div class="resultado-popup" id="textoResultado">
-        ACERTOU!
-      </div>
-    </div>
-
-    <!-- TELA DE VITORIA -->
-    <div class="tela-final tela-vitoria" id="telaVitoria">
-      <div class="tela-final-caixa">
-        <h2>VOCE VENCEU!</h2>
-        <p>A batalha acabou por enquanto.</p>
-        <button class="botao-retornar" id="btnVoltarVitoria">
-          RETORNAR
-        </button>
-      </div>
-    </div>
-
-    <!-- TELA DE DERROTA -->
-    <div class="tela-final tela-derrota" id="telaDerrota">
-      <div class="tela-final-caixa">
-        <h2>VOCE PERDEU!</h2>
-        <p>Tenta de novo que agora vai.</p>
-        <button class="botao-retornar" id="btnVoltarDerrota">
-          RETORNAR
-        </button>
-      </div>
-    </div>
-
-  </div>
-
+    <nav id="touch-controls" aria-label="Controles de toque"><div class="dpad"><button data-key="w" aria-label="Cima">▲</button><button data-key="a" aria-label="Esquerda">◀</button><button data-key="s" aria-label="Baixo">▼</button><button data-key="d" aria-label="Direita">▶</button></div><button id="touch-interact">INTERAGIR · E</button></nav>
+    <footer><span>WASD · MOVER &nbsp; E / ESPAÇO · INTERAGIR &nbsp; 1–4 · AÇÕES &nbsp; ESC · PAUSAR</span><button id="fullscreen">TELA CHEIA ↗</button></footer>
+  </main>
 </body>
-
 </html>
