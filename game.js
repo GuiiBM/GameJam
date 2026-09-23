@@ -9,6 +9,22 @@
   const focusStage = () => $('stage').focus({preventScroll:true});
   const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const mod = (a, b) => ((a % b) + b) % b;
+  const coarse = matchMedia('(pointer: coarse)');
+  const isMobile = () => coarse.matches || (navigator.maxTouchPoints > 0 && /Android|iPhone|iPad|iPod|Mobile|Silk|Kindle/i.test(navigator.userAgent));
+  function applyDevice() {
+    const mobile = isMobile();
+    document.documentElement.classList.toggle('mobile', mobile);
+    $('answer').readOnly = mobile;
+    $('answer').inputMode = mobile ? 'none' : 'numeric';
+  }
+  applyDevice();
+  coarse.addEventListener?.('change', applyDevice);
+  async function goLandscape() {
+    try {
+      if (!document.fullscreenElement && document.documentElement.requestFullscreen) await document.documentElement.requestFullscreen({navigationUI:'hide'});
+      await screen.orientation?.lock?.('landscape');
+    } catch {}
+  }
 
   function sprite(name, frame, x, y, scale = 1, flip = false) {
     const data = D.sprites[name], img = images[name]?.[mod(Math.floor(frame), data.frames.length)];
@@ -53,6 +69,7 @@
     }
     setMode(mode) { this.mode = mode; keys.clear(); this.player.moving = false; this.updateUI(); }
     updateUI() {
+      document.body.dataset.mode = this.mode;
       ['menu','hud','dialogue','choice','battle','challenge','result','ending','prompt'].forEach(id => show(id, false));
       if (this.mode === 'menu') show('menu', true);
       if (['explore','dialogue','choice'].includes(this.mode)) {
@@ -138,7 +155,7 @@
     action(action) {
       if (this.paused || this.mode !== 'battle') return;
       const requested = this.battle.request(action); this.battleUI();
-      if (requested) { $('answer').value = ''; $('answer').focus({preventScroll:true}); }
+      if (requested) { $('answer').value = ''; if (!isMobile()) $('answer').focus({preventScroll:true}); }
     }
     answer(value) {
       if (this.paused || this.mode !== 'battle') return;
@@ -171,18 +188,18 @@
       document.querySelectorAll('[data-menu]').forEach((b,i)=> b.classList.toggle('selected',i===this.menuIndex));
     }
     menuAction(name) {
-      if (name === 'play') this.start();
+      if (name === 'play') { if (isMobile()) goLandscape(); this.start(); }
       else if (name === 'controls') this.openModal('controls');
       else this.openModal('exit');
     }
     openModal(kind) {
-      this.paused = true; this.modalKind = kind; keys.clear();
+      this.paused = true; this.modalKind = kind; keys.clear(); document.body.classList.add('paused');
       $('modal-title').textContent = kind === 'pause' ? 'JOGO PAUSADO' : kind === 'exit' ? 'ATÉ A PRÓXIMA INCURSÃO' : 'CONTROLES';
       $('modal-text').innerHTML = kind === 'controls' ? '<dl><dt>WASD</dt><dd>Movimentar Wilson</dd><dt>E / ESPAÇO</dt><dd>Interagir e avançar diálogos</dd><dt>1 / 2 / 3 / 4</dt><dd>Ataque / cura / defesa / esquiva</dd><dt>NÚMEROS + ENTER</dt><dd>Responder aos cálculos</dd><dt>ESC</dt><dd>Pausar ou voltar</dd></dl>' : kind === 'exit' ? '<p>Você pode fechar esta aba para sair do jogo.</p>' : '<p>A linha do tempo está esperando por você.</p>';
       $('modal-close').textContent = kind === 'pause' ? 'CONTINUAR JOGANDO' : 'VOLTAR';
-      show('return-menu', kind === 'pause'); show('modal', true); $('modal-close').focus();
+      show('return-menu', kind === 'pause'); show('modal', true); if (!isMobile()) $('modal-close').focus();
     }
-    closeModal() { this.paused = false; this.modalKind = null; show('modal', false); focusStage(); }
+    closeModal() { document.body.classList.remove('paused'); this.paused = false; this.modalKind = null; show('modal', false); focusStage(); }
     toMenu() {
       this.closeModal(); this.battle = null; this.dialogue = null; this.portal = null; this.transition = null;
       $('fade').style.opacity = 0; show('toast', false); this.setMode('menu'); this.selectMenu(0);
@@ -367,6 +384,14 @@
   $('result-next').onclick=()=>game.finishBattle();
   $('pause-button').onclick=()=>game.openModal('pause');
   $('modal-close').onclick=()=>game.closeModal(); $('return-menu').onclick=()=>game.toMenu();
+  document.querySelectorAll('[data-digit]').forEach(button=>button.onclick=()=>{
+    const input=$('answer'), digit=button.dataset.digit;
+    input.value = digit==='back' ? input.value.slice(0,-1) : digit==='clear' ? '' : (input.value+digit).slice(0,5);
+  });
+  $('rotate-fullscreen').onclick=()=>goLandscape();
+  for(const type of ['contextmenu','selectstart','dragstart','gesturestart']) document.addEventListener(type,event=>{if(isMobile())event.preventDefault();});
+  document.addEventListener('dblclick',event=>{if(isMobile())event.preventDefault();},{passive:false});
+  document.addEventListener('touchmove',event=>{if(isMobile()&&event.touches.length>1)event.preventDefault();},{passive:false});
   $('ending-menu').onclick=()=>game.toMenu(); $('touch-interact').onclick=()=>game.advance();
   $('fullscreen').onclick=async()=>{
     try {if(document.fullscreenElement) await document.exitFullscreen();else await $('stage').requestFullscreen();}
@@ -397,8 +422,9 @@
     else if(['e',' ','enter'].includes(k)) game.advance();
   });
   window.addEventListener('keyup',event=>keys.delete(event.key.toLowerCase()));
-  window.addEventListener('blur',()=>{keys.clear();if(game && game.mode!=='menu' && !game.paused)game.openModal('pause');});
-  document.addEventListener('visibilitychange',()=>{if(document.hidden)keys.clear();});
+  const autoPause=()=>{keys.clear();if(game && !['menu','meteor','aftermath'].includes(game.mode) && !game.paused)game.openModal('pause');};
+  window.addEventListener('blur',()=>{if(isMobile())keys.clear();else autoPause();});
+  document.addEventListener('visibilitychange',()=>{if(document.hidden)autoPause();});
 
   async function boot() {
     let loaded=0;

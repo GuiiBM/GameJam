@@ -16,7 +16,7 @@ const {pathToFileURL}=require('node:url');
   async function answerAction(action) {
     await page.locator(`[data-action="${action}"]`).click();
     const answer=await page.evaluate(()=>__game.battle.challenge.answer);
-    await page.locator('#answer').fill(String(answer));await page.locator('#answer-form button').click();
+    await page.locator('#answer').fill(String(answer));await page.locator('#answer-form button[type=submit]').click();
   }
   try {
     await page.goto(pathToFileURL(path.resolve(__dirname,'../index.html')).href+'?test=1');

@@ -2,7 +2,9 @@
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="theme-color" content="#27103e">
   <title>Paradoxo de Wilson</title>
   <link rel="stylesheet" href="styles.css">
@@ -36,7 +38,7 @@
         <p id="battle-log" class="panel" aria-live="polite"></p>
         <div class="actions"><button data-action="attack">1 ATAQUE</button><button data-action="heal">2 CURA</button><button data-action="defense">3 DEFESA</button><button data-action="dodge">4 ESQUIVA</button></div>
       </section>
-      <div id="challenge" class="veil" hidden><form id="answer-form" class="panel challenge"><h2>RESOLVA A CONTA!</h2><p id="equation"></p><label for="answer">SUA RESPOSTA</label><input id="answer" type="text" inputmode="numeric" pattern="[0-9]{1,5}" maxlength="5" autocomplete="off" required><button type="submit">CONFIRMAR <small>ENTER</small></button></form></div>
+      <div id="challenge" class="veil" hidden><form id="answer-form" class="panel challenge"><h2>RESOLVA A CONTA!</h2><p id="equation"></p><label for="answer">SUA RESPOSTA</label><input id="answer" type="text" inputmode="numeric" pattern="[0-9]{1,5}" maxlength="5" autocomplete="off" required><div class="numpad" aria-label="Teclado numérico"><button type="button" data-digit="1">1</button><button type="button" data-digit="2">2</button><button type="button" data-digit="3">3</button><button type="button" data-digit="4">4</button><button type="button" data-digit="5">5</button><button type="button" data-digit="6">6</button><button type="button" data-digit="7">7</button><button type="button" data-digit="8">8</button><button type="button" data-digit="9">9</button><button type="button" data-digit="clear" aria-label="Limpar">C</button><button type="button" data-digit="0">0</button><button type="button" data-digit="back" aria-label="Apagar">⌫</button></div><button type="submit">CONFIRMAR <small>ENTER</small></button></form></div>
       <div id="result" class="veil" hidden><section class="panel"><h2 id="result-title"></h2><p id="result-text"></p><button id="result-next"></button></section></div>
       <div id="modal" class="veil" hidden><section class="panel"><h2 id="modal-title"></h2><div id="modal-text"></div><button id="modal-close">VOLTAR</button><button id="return-menu" hidden>VOLTAR AO MENU</button></section></div>
       <section id="ending" hidden><h2>A REALIDADE SE ROMPEU.</h2><p>Wilson escapou a tempo.</p><button id="ending-menu" hidden>VOLTAR AO MENU <small>ENTER</small></button></section>
@@ -44,6 +46,7 @@
       <div id="fade"></div>
     </div>
     <nav id="touch-controls" aria-label="Controles de toque"><div class="dpad"><button data-key="w" aria-label="Cima">▲</button><button data-key="a" aria-label="Esquerda">◀</button><button data-key="s" aria-label="Baixo">▼</button><button data-key="d" aria-label="Direita">▶</button></div><button id="touch-interact">INTERAGIR · E</button></nav>
+    <div id="rotate" role="alert"><div><p class="rotate-icon">⟳</p><h2>GIRE O CELULAR</h2><p>Paradoxo de Wilson é jogado na horizontal.</p><button id="rotate-fullscreen">TELA CHEIA</button></div></div>
     <footer><span>WASD · MOVER &nbsp; E / ESPAÇO · INTERAGIR &nbsp; 1–4 · AÇÕES &nbsp; ESC · PAUSAR</span><button id="fullscreen">TELA CHEIA ↗</button></footer>
   </main>
 </body>
